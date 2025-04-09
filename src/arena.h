@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "utils.h"
 
 /*
 
@@ -52,9 +53,9 @@ struct arena {
 };
 
 arena_chunk_t* arena_chunk_init(ptrdiff_t size);
-void           arena_chunk_free(arena_chunk_t* arena_chunk);
+void           arena_chunk_free(arena_chunk_t[static 1]);
 arena_t        arena_init();
-void*          __arena_alloc(arena_t* arena, ptrdiff_t size, ptrdiff_t align);
-void           arena_free(arena_t* arena);
+void*          __arena_alloc(arena_t[static 1], ptrdiff_t size, ptrdiff_t align);
+void           arena_free(arena_t[static 1]);
 
 #endif // ARENA_H
