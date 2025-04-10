@@ -1,0 +1,10 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/universal:2",
+	"features": {
+		"ghcr.io/joshuanianji/devcontainer-features/github-cli-persistence:1": {},
+		"ghcr.io/jpawlowski/devcontainer-features/codespaces-dotfiles:1": {},
+		"ghcr.io/devcontainers-extra/features/actions-runner:1": {},
+		"ghcr.io/devcontainers-extra/features/gh-cli:1": {},
+		"ghcr.io/devcontainers-extra/features/gh-release:1": {}
+	}
+}
