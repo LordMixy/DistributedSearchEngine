@@ -35,7 +35,8 @@ struct inverted_index {
 };
 
 posting_t** inv_idx_upsert(inverted_index_t**, char[MAX_TERM_LEN], arena_t*);
-void        inv_idx_ps_ins(inverted_index_t **, char[MAX_TERM_LEN], posting_t*, arena_t*);
+posting_t*  posting_init(uint64_t, uint64_t, uint64_t, arena_t*);
 void        posting_insert(posting_t **, posting_t *);
+void        inv_idx_ps_ins(inverted_index_t **, char[MAX_TERM_LEN], posting_t*, arena_t*);
 
 #endif // __INVERTED_INDEX_H__

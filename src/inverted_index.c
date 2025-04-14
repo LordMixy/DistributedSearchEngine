@@ -13,10 +13,8 @@ static inline uint64_t hash(char *s)
     return h;
 }
 
-posting_t** inv_idx_upsert(inverted_index_t **index, char term[MAX_TERM_LEN], arena_t *arena)
+posting_t** inv_idx_upsert(inverted_index_t** index, char term[MAX_TERM_LEN], arena_t* arena)
 {
-    assert(term[strlen(term)] == 0);
-
     for (uint64_t h = hash(term); *index; h <<= 2) {
         if (strncmp(term, (*index)->term, MAX_TERM_LEN)) {
             return &(*index)->postings;
@@ -26,8 +24,6 @@ posting_t** inv_idx_upsert(inverted_index_t **index, char term[MAX_TERM_LEN], ar
 
     *index = arena_alloc(arena, inverted_index_t, 1);
     strcpy((*index)->term, term);
-
-    assert((*index)->term[strlen((*index)->term)] == 0);
 
     return &(*index)->postings;
 }
@@ -41,4 +37,15 @@ void posting_insert(posting_t** postings, posting_t* posting)
 void inv_idx_ps_ins(inverted_index_t** idx, char term[MAX_TERM_LEN], posting_t* posting, arena_t* arena)
 {
     posting_insert(inv_idx_upsert(idx, term, arena), posting);
+}
+
+posting_t* posting_init(uint64_t doc_id, uint64_t position, uint64_t frequency, arena_t* arena)
+{
+    posting_t* p = arena_alloc(arena, posting_t, 1);
+    *p = (posting_t) {
+        .doc_id = doc_id,
+        .position = position, 
+        .frequency = frequency
+    };
+    return p;
 }

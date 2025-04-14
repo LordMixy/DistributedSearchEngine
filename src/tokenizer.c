@@ -52,20 +52,22 @@ static void token_insert(token_t** list, token_t* node)
     *list = node;
 }
 
-token_t* get_tokens(char* string, arena_t arena[static 1])
+token_t* get_tokens(FILE* fp, arena_t arena[static 1])
 {
     token_t* tokens = NULL;
     size_t currentLen = 0;
     
-    // Per ogni carattere...
-    for (char* c = string, token[MAX_TOKEN_SIZE]; *c; ++c) 
+    char token[MAX_TOKEN_SIZE];
+    int32_t c;
+
+    while ((c = fgetc(fp)) != EOF)
     {
         // Se il carattere e' alfanumerico, si aggiunge al token 
-        if (isalnum(*c)) token[currentLen++] = tolower(*c);
+        if (isalnum(c)) token[currentLen++] = tolower(c);
 
         // Se il carattere e' un apostrofo, si controlla
         // se fa parte di una forma contratta, come "don't"
-        else if (*c == '\'') {
+        else if (c == '\'') {
             size_t j;
             
             // Si cerca la forma contratta
@@ -73,13 +75,14 @@ token_t* get_tokens(char* string, arena_t arena[static 1])
             
             // Se esiste, la si aggiunge
             if (contractions[j].length > 0) 
-                token[currentLen++] = tolower(*c);
+                token[currentLen++] = tolower(c);
         } 
         
         // ...
         else if (token[currentLen - 1]) {
             token[currentLen] = '\0';            
-            token_insert(&tokens, token_init(token, arena));
+            if (*token) 
+                token_insert(&tokens, token_init(token, arena));
             currentLen = 0;
         }
     }

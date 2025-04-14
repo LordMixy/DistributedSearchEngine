@@ -61,6 +61,6 @@ struct token {
     token_t* next;
 };
 
-token_t* get_tokens(char* string, arena_t arena[static 1]);
+token_t* get_tokens(FILE* fp, arena_t arena[static 1]);
 
 #endif // __TOKENIZER__
