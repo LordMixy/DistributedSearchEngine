@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <assert.h>
 #include "arena.h"
 #include "tokenizer.h"
+#include "inverted_index.h"
 
 int main()
 {
@@ -11,9 +13,22 @@ int main()
 		&arena
 	);
 
-	for (token_t* node = tks; node != NULL; node = node->next) 
-		printf("%s ", node->buff);
-	putchar('\n');
+	inverted_index_t* idx = NULL;
+	for (token_t* node = tks; node != NULL; node = node->next) {		
+        posting_t* p = arena_alloc(&arena, posting_t, 1);
+        *p = (posting_t) {
+            .doc_id = 42,
+            .frequency = 42,
+            .position = 42
+        };
+        inv_idx_ps_ins(&idx, node->buff, p, &arena);
+	}
+
+    for (token_t* node = tks; node != NULL; node = node->next) {
+        posting_t** ps = inv_idx_upsert(&idx, node->buff, &arena);
+        if (*ps) printf("%lu\n", (*ps)->doc_id);
+        else puts(node->buff);
+    }
 
 	arena_free(&arena);
 	return 0;

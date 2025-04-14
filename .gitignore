@@ -56,3 +56,9 @@ dkms.conf
 
 # Maledetto
 /.vscode
+
+# Valgrind 
+/vgcore.*
+
+# Docker (perche'?)
+/.devcontainer
