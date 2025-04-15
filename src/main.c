@@ -65,8 +65,6 @@ void foreach_file(
 
 void process_file(char path[256], inverted_index_t* inv_idx, arena_t arena[static 1])
 {
-    // puts(path);
-
     FILE* fp;
     token_t* tks;
 
@@ -78,7 +76,6 @@ void process_file(char path[256], inverted_index_t* inv_idx, arena_t arena[stati
     
     tks = get_tokens(fp, arena);
     for (token_t* node = tks; node != NULL; node = node->next) {
-        // printf("tok: %s\n", node->buff);
         inv_idx_ps_ins(
             &inv_idx, 
             node->buff,
@@ -96,45 +93,6 @@ inverted_index_t* load_files(char* docs_folder, arena_t* arena)
     foreach_file(docs_folder, inv_idx, arena, process_file);
     return inv_idx;
 }
-
-/*
-void push_terms(char* docs_folder, inverted_index_t* inv_idx, arena_t* arena)
-{
-    DIR* dir = opendir(docs_folder);
-    struct dirent* dirent;
-
-    FILE* fp;
-    token_t* tks;
-
-    char path[FILENAME_MAX];
-    while ((dirent = readdir(dir)) != NULL)
-    {
-        memset(path, 0, FILENAME_MAX);
-        strncpy(path, docs_folder, FILENAME_MAX);
-        strncat(path, dirent->d_name, FILENAME_MAX);
-        path[strlen(path)] = 0;
-
-        fp = fopen(path, "r");
-        if (!fp) {
-            fprintf(stderr, "%s: fopen failed\n", path);
-            continue;
-        }
-        
-        tks = get_tokens(fp, arena);
-        for (token_t* node = tks; node != NULL; node = node->next) {
-            inv_idx_ps_ins(
-                &inv_idx, 
-                node->buff,
-                posting_init(42, 42, 42, arena), 
-                arena
-            );
-        }
-
-        fclose(fp);
-    }
-
-    closedir(dir);
-}*/
 
 int main()
 {
