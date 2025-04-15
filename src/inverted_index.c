@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include "inverted_index.h"
 #include "arena.h"
 #include <assert.h>
@@ -15,15 +16,24 @@ static inline uint64_t hash(char *s)
 
 posting_t** inv_idx_upsert(inverted_index_t** index, char term[MAX_TERM_LEN], arena_t* arena)
 {
+    static int i = 0;
+    // printf("tok: %s\n", term);
     for (uint64_t h = hash(term); *index; h <<= 2) {
-        if (strncmp(term, (*index)->term, MAX_TERM_LEN)) {
+        if (!strncmp(term, (*index)->term, MAX_TERM_LEN)) {
             return &(*index)->postings;
         }
         index = &(*index)->child[h >> 62];
     }
 
     *index = arena_alloc(arena, inverted_index_t, 1);
-    strcpy((*index)->term, term);
+    memset(*index, 0, sizeof(inverted_index_t));
+    strncpy((*index)->term, term, MAX_TERM_LEN);
+    (*index)->term[strlen(term)] = 0;
+    // (*index)->child = NULL;
+    // (*index)->postings = NULL;
+
+    ++i;
+    // printf("%d: %s\n", i, (*index)->term);
 
     return &(*index)->postings;
 }

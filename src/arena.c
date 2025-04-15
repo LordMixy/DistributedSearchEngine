@@ -25,7 +25,7 @@ arena_chunk_t* arena_chunk_init(ptrdiff_t size)
     return arena_chunk;
 }
 
-void arena_chunk_free(arena_chunk_t arena_chunk[static 1])
+void arena_chunk_free(arena_chunk_t* arena_chunk)
 {
     free(arena_chunk->data);
     free(arena_chunk);
@@ -81,6 +81,7 @@ void* __arena_alloc(arena_t arena[static 1], ptrdiff_t size, ptrdiff_t align)
         // Si crea un altro chunk
         arena_chunk_t* chunk = arena_chunk_init(UTILS_MAX(arena->chunks->size * 2, size + align));
         if (!chunk) {
+            arena->flags |= ARENA_CHUNK_FAILED;
             return NULL;
         }
         

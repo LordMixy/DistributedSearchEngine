@@ -3,7 +3,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "utils.h"
 
 /*
 
@@ -17,8 +16,9 @@
 
 */
 
-#define ARENA_FAILED_ME  (1 << 7)
-#define ARENA_CHUNK_SIZE (64 * 1024)
+#define ARENA_FAILED_ME    (1 << 7)
+#define ARENA_CHUNK_FAILED (1 << 6)
+#define ARENA_CHUNK_SIZE   (64 * 1024)
 
 #define arena_alloc(a, t, n) (__arena_alloc(a, sizeof(t) * n, _Alignof(t)))
 
@@ -53,7 +53,7 @@ struct arena {
 };
 
 arena_chunk_t* arena_chunk_init(ptrdiff_t size);
-void           arena_chunk_free(arena_chunk_t[static 1]);
+void           arena_chunk_free(arena_chunk_t*);
 arena_t        arena_init();
 void*          __arena_alloc(arena_t[static 1], ptrdiff_t size, ptrdiff_t align);
 void           arena_free(arena_t[static 1]);

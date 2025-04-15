@@ -14,7 +14,7 @@
 
 #define DOCS_FOLDER "./books/"
 
-typedef void (*file_processor)(char[256], inverted_index_t*, arena_t[static 1]);
+typedef void (*file_processor)(char[FILENAME_MAX], inverted_index_t*, arena_t[static 1]);
 
 void foreach_file(
     char* path, 
@@ -26,8 +26,23 @@ void foreach_file(
 #ifdef __linux__
     DIR* dir = opendir(path);
     struct dirent* dirent;
-    while ((dirent = readdir(dir)) != NULL)
-        callback(dirent->d_name, inv_idx, arena);
+
+    int i = 0;
+
+    char complete_path[FILENAME_MAX];
+    while ((dirent = readdir(dir)) != NULL) {
+        if (i == 101) break;
+
+        if (strstr(dirent->d_name, ".txt")) {
+            memset(complete_path, 0, FILENAME_MAX);
+            strncpy(complete_path, path, FILENAME_MAX);
+            strncat(complete_path, dirent->d_name, FILENAME_MAX);
+            complete_path[strlen(complete_path)] = 0;
+            callback(complete_path, inv_idx, arena);
+            ++i;
+        }
+    }
+    
     closedir(dir);
 #elif _WIN32
     WIN32_FIND_DATA file;
@@ -50,7 +65,7 @@ void foreach_file(
 
 void process_file(char path[256], inverted_index_t* inv_idx, arena_t arena[static 1])
 {
-    puts(path);
+    // puts(path);
 
     FILE* fp;
     token_t* tks;
@@ -63,6 +78,7 @@ void process_file(char path[256], inverted_index_t* inv_idx, arena_t arena[stati
     
     tks = get_tokens(fp, arena);
     for (token_t* node = tks; node != NULL; node = node->next) {
+        // printf("tok: %s\n", node->buff);
         inv_idx_ps_ins(
             &inv_idx, 
             node->buff,
