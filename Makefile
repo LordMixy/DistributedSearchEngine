@@ -1,46 +1,56 @@
-# Makefile per progetto C senza cartella include
-# Struttura:
+# Cross-platform Makefile for C project without include folder
+# Structure:
 #   myproject/
-#     src/      (file .c e .h)
-#     build/    (file oggetto e eseguibili)
+#     src/      (C and H files)
+#     build/    (object files and executables)
 
-# Compilatore e flag
+# Compiler and flags
 CC = gcc
 CFLAGS = -Wall -Wextra
-LDFLAGS = 
-TARGET = build/dse
+LDFLAGS =
 
-# Strutture directory
+# Directory structures
 SRC_DIR = src
 BUILD_DIR = build
+
+# Handle platform differences
+ifeq ($(OS),Windows_NT)
+    # Windows-specific settings
+    TARGET = build/dse.exe
+    MKDIR = mkdir $(subst /,\,$(BUILD_DIR))
+    RM = rmdir /s /q $(subst /,\,$(BUILD_DIR))
+else
+    # Unix-specific settings
+    TARGET = build/dse
+    MKDIR = mkdir -p $(BUILD_DIR)
+    RM = rm -rf $(BUILD_DIR)
+endif
+
+# Find source files
 SRC = $(wildcard $(SRC_DIR)/*.c)
 OBJ = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
 DEP = $(OBJ:.o=.d)
 
-# Regole di compilazione
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(@D)
+# Default target
+.PHONY: all
+all: $(TARGET)
+
+# Rule to create build directory
+$(BUILD_DIR):
+	$(MKDIR)
+
+# Compilation rule - note the tab indentation and single command per line
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -MMD -c $< -o $@
 
+# Linking rule
 $(TARGET): $(OBJ)
 	$(CC) $(LDFLAGS) $^ -o $@
 
-# Include le dipendenze
+# Include dependencies
 -include $(DEP)
 
-# Regole utilità
-.PHONY: all clean
-
-all: $(TARGET)
-
+# Clean rule
+.PHONY: clean
 clean:
-	rm -rf $(BUILD_DIR)
-
-# Output colorato (opzionale)
-ifndef V
-CC_COLOR = \033[34m
-BIN_COLOR = \033[37;1m
-END_COLOR = \033[0m
-QUIET_CC = @printf '  %b %b\n' $(CC_COLOR)CC$(END_COLOR) $(BIN_COLOR)$@$(END_COLOR);
-QUIET_LINK = @printf '  %b %b\n' $(CC_COLOR)LINK$(END_COLOR) $(BIN_COLOR)$@$(END_COLOR);
-endif
+	$(RM)

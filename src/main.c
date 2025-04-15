@@ -2,12 +2,86 @@
 #include <stdlib.h>
 #include "arena.h"
 #include <assert.h>
-#include <dirent.h>
 #include "tokenizer.h"
 #include "inverted_index.h"
 
+#ifdef __linux__
+#include <dirent.h>
+#elif _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #define DOCS_FOLDER "./books/"
 
+typedef void (*file_processor)(char[256], inverted_index_t*, arena_t[static 1]);
+
+void foreach_file(
+    char* path, 
+    inverted_index_t* inv_idx,
+    arena_t arena[static 1],
+    file_processor callback
+) 
+{
+#ifdef __linux__
+    DIR* dir = opendir(path);
+    struct dirent* dirent;
+    while ((dirent = readdir(dir)) != NULL)
+        callback(dirent->d_name, inv_idx, arena);
+    closedir(dir);
+#elif _WIN32
+    WIN32_FIND_DATA file;
+    HANDLE file_handle = NULL;
+
+    if ((file_handle = FindFirstFile(path, &file)) == INVALID_HANDLE_VALUE) {
+        // fprintf(stderr, "Could not find specified directory!\n");
+        // exit(1);
+        return;
+    }
+
+    do {
+        if (file.cFileName[0] == '.') continue;
+        callback(file.cFileName, inv_idx, arena);
+    } while (FindNextFile(file_handle, &file));
+
+    FindClose(file_handle);
+#endif
+}
+
+void process_file(char path[256], inverted_index_t* inv_idx, arena_t arena[static 1])
+{
+    puts(path);
+
+    FILE* fp;
+    token_t* tks;
+
+    fp = fopen(path, "r");
+    if (!fp) {
+        fprintf(stderr, "%s: fopen failed\n", path);
+        return;
+    }
+    
+    tks = get_tokens(fp, arena);
+    for (token_t* node = tks; node != NULL; node = node->next) {
+        inv_idx_ps_ins(
+            &inv_idx, 
+            node->buff,
+            posting_init(42, 42, 42, arena), 
+            arena
+        );
+    }
+
+    fclose(fp);
+}
+
+inverted_index_t* load_files(char* docs_folder, arena_t* arena)
+{
+    inverted_index_t* inv_idx = NULL;
+    foreach_file(docs_folder, inv_idx, arena, process_file);
+    return inv_idx;
+}
+
+/*
 void push_terms(char* docs_folder, inverted_index_t* inv_idx, arena_t* arena)
 {
     DIR* dir = opendir(docs_folder);
@@ -44,16 +118,14 @@ void push_terms(char* docs_folder, inverted_index_t* inv_idx, arena_t* arena)
     }
 
     closedir(dir);
-}
+}*/
 
 int main()
 {
 	arena_t arena = arena_init();
     
-    inverted_index_t* inv_idx = NULL;
-    push_terms(DOCS_FOLDER, inv_idx, &arena);
-
-    
+    inverted_index_t* inv_idx = load_files(DOCS_FOLDER, &arena);
+    (void) inv_idx;
 
 	arena_free(&arena);
 	return 0;
