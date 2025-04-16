@@ -55,12 +55,27 @@
 #define MAX_TOKEN_SIZE 256
 
 typedef struct token token_t;
+typedef struct token_pool token_pool_t;
+typedef struct token_position token_position_t;
+
+struct token_position {
+	token_position_t* next;
+	uint32_t pos;
+};	
 
 struct token {
     token_t* next;
-    char     buff[MAX_TOKEN_SIZE];    
+    token_position_t* positions;
+    uint32_t frequency;
+    char buff[MAX_TOKEN_SIZE];    
 };
 
-token_t* get_tokens(FILE* fp, arena_t arena[static 1]);
+struct token_pool {	
+	token_t* token;		
+	char term[MAX_TOKEN_SIZE];
+	token_pool_t* child[4];
+};
+
+token_t* get_tokens(FILE* fp, token_pool_t** pool, arena_t arena[static 1]);
 
 #endif // __TOKENIZER__

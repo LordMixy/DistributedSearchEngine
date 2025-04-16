@@ -15,6 +15,7 @@
 
 #include <stdint.h>
 #include "arena.h"
+#include "tokenizer.h"
 
 #define MAX_TERM_LEN 256
 
@@ -22,9 +23,9 @@ typedef struct posting posting_t;
 typedef struct inverted_index inverted_index_t;
 
 struct posting {
-    uint64_t   doc_id;
-    uint64_t   position;    
-    uint64_t   frequency;
+    uint64_t doc_id;
+    uint64_t frequency;
+    token_position_t* positions;    
     posting_t* next;
 };
 
@@ -35,7 +36,8 @@ struct inverted_index {
 };
 
 posting_t** inv_idx_upsert(inverted_index_t**, char[MAX_TERM_LEN], arena_t*);
-posting_t*  posting_init(uint64_t, uint64_t, uint64_t, arena_t*);
+posting_t*  posting_init(uint64_t, uint64_t, token_position_t*, arena_t*);
+posting_t*  get_postings(inverted_index_t*, char[MAX_TERM_LEN]);
 void        posting_insert(posting_t **, posting_t *);
 void        inv_idx_ps_ins(inverted_index_t **, char[MAX_TERM_LEN], posting_t*, arena_t*);
 

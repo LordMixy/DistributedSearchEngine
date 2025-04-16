@@ -26,10 +26,10 @@ typedef struct arena_chunk arena_chunk_t;
 typedef struct arena arena_t;
 
 struct arena_chunk {       
-    void*          data;
     ptrdiff_t      size;
     ptrdiff_t      used;
     arena_chunk_t* next;
+    uint8_t        data[];
 };
 
 struct arena {

@@ -3,19 +3,16 @@ Flat profile:
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
  time   seconds   seconds    calls  Ts/call  Ts/call  name    
- 22.13      1.35     1.35                             get_tokens
- 21.23      2.65     1.29                             __arena_alloc
- 19.34      3.83     1.18                             inv_idx_upsert
- 14.51      4.71     0.89                             posting_init
- 10.25      5.33     0.62                             hash
-  4.92      5.63     0.30                             posting_insert
-  2.38      5.78     0.14                             token_init
-  1.97      5.90     0.12                             process_file
-  1.80      6.01     0.11                             _init
-  1.15      6.08     0.07                             inv_idx_ps_ins
-  0.16      6.09     0.01                             arena_free
-  0.08      6.09     0.01                             foreach_file
-  0.08      6.10     0.01                             main
+ 26.38      0.62     0.62                             get_tokens
+ 23.83      1.18     0.56                             hash
+ 22.13      1.70     0.52                             token_pool_upsert
+  9.79      1.93     0.23                             token_position_init
+  7.66      2.11     0.18                             _init
+  4.04      2.21     0.10                             inv_idx_upsert
+  2.98      2.27     0.07                             __arena_alloc
+  1.70      2.31     0.04                             process_file
+  1.28      2.35     0.03                             posting_init
+  0.21      2.35     0.01                             get_postings
 
  %         the percentage of the total running time of the
 time       program used by this function.
