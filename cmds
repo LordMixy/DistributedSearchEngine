@@ -1,0 +1,2 @@
+make && ./build/dse && gprof ./build/dse gmon.out > analysis.txt && micro analysis.txt
+make && sudo perf record -g ./build/dse && sudo perf report -Mintel

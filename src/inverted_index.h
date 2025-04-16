@@ -29,9 +29,9 @@ struct posting {
 };
 
 struct inverted_index {
-    char              term[MAX_TERM_LEN];
-    posting_t*        postings;
     inverted_index_t* child[4];
+    posting_t*        postings;
+    char              term[MAX_TERM_LEN];
 };
 
 posting_t** inv_idx_upsert(inverted_index_t**, char[MAX_TERM_LEN], arena_t*);

@@ -31,7 +31,7 @@ void foreach_file(
 
     char complete_path[FILENAME_MAX];
     while ((dirent = readdir(dir)) != NULL) {
-        if (i == 101) break;
+        if (i == 100) break;
 
         if (strstr(dirent->d_name, ".txt")) {
             memset(complete_path, 0, FILENAME_MAX);

@@ -74,12 +74,12 @@ void* __arena_alloc(arena_t arena[static 1], ptrdiff_t size, ptrdiff_t align)
     // la differenza tra l'indirizzo allineato e quello non.
     // La memoria che l'arena deve allocare e': padding + size. 
     ptrdiff_t needed = (aligned_addr - addr) + size;
-
+		
     // Si sta richiedendo piu' memoria di quella disponibile dal chunk?
     if (arena->current->used + needed > arena->current->size) {
         
         // Si crea un altro chunk
-        arena_chunk_t* chunk = arena_chunk_init(UTILS_MAX(arena->chunks->size * 2, size + align));
+        arena_chunk_t* chunk = arena_chunk_init(UTILS_MAX(arena->chunks->size * 1.5, size + align));
         if (!chunk) {
             arena->flags |= ARENA_CHUNK_FAILED;
             return NULL;

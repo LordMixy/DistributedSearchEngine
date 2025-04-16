@@ -16,11 +16,12 @@ static inline uint64_t hash(char *s)
 
 posting_t** inv_idx_upsert(inverted_index_t** index, char term[MAX_TERM_LEN], arena_t* arena)
 {
+	// h = (h * 4) ^ (h >> 60)
     for (uint64_t h = hash(term); *index; h <<= 2) {
-        if (!strncmp(term, (*index)->term, MAX_TERM_LEN)) {
-            return &(*index)->postings;
+    	if (!strncmp(term, (*index)->term, MAX_TERM_LEN)) {
+        	return &(*index)->postings;
         }
-        index = &(*index)->child[h >> 62];
+        index = &(*index)->child[(h >> 62)];
     }
 
     *index = arena_alloc(arena, inverted_index_t, 1);

@@ -6,8 +6,8 @@
 
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra
-LDFLAGS = -pg  
+CFLAGS = -Wall -Wextra -ggdb
+LDFLAGS = -pg
 
 # Directory structures
 SRC_DIR = src

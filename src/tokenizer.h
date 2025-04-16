@@ -57,8 +57,8 @@
 typedef struct token token_t;
 
 struct token {
-    char     buff[MAX_TOKEN_SIZE];    
     token_t* next;
+    char     buff[MAX_TOKEN_SIZE];    
 };
 
 token_t* get_tokens(FILE* fp, arena_t arena[static 1]);
