@@ -62,3 +62,9 @@ dkms.conf
 
 # Docker (perche'?)
 /.devcontainer
+
+# TODO dio
+/massif.*
+/perf.*
+/gmon.out
+/analysis.txt

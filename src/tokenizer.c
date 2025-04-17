@@ -5,21 +5,22 @@
 #include "tokenizer.h"
 #include "utils.h"
 
-#define MAX_TOKEN_SIZE 256
+static inline void token_insert(token_t** list, token_t* node)  
+{ 
+    node->next = *list; 
+    *list = node; 
+} 
 
-#define LINKED_LIST_INSERT_DECL(type) \
-	__attribute__((always_inline))  \
-	static inline void type##_insert(type##_t** list, type##_t* node)  \
-	{ \
-	    node->next = *list; \
-	    *list = node; \
-	} \
+static inline void token_position_insert(token_position_t** list, token_position_t* node)  
+{ 
+    node->next = *list; 
+    *list = node; 
+} 
 
-LINKED_LIST_INSERT_DECL(token);
-LINKED_LIST_INSERT_DECL(token_position);
-
+// TODO una tabella hash e' notevolmente
+// una decisione migliore
 struct {
-    char*     string;
+    const char* string;
     ptrdiff_t length;
 } contractions[] = {
     {"is", 2},            // da "isn't"
@@ -48,19 +49,12 @@ struct {
     {"end", -1}
 };
 
-static token_t* token_init(char* str, arena_t* arena)
+static token_t* token_init(token_pool_t* owner, arena_t* arena)
 {
-	// static int i = 0;
-	// printf("%d init token %s\n", ++i, str);
-
     token_t* tk = arena_alloc(arena, token_t, 1);
-    
-    size_t len = strlen(str);
-    memcpy(tk->buff, str, len);
-    tk->buff[len] = 0;
 
+	tk->owner = owner;
     tk->positions = NULL;
-    tk->frequency = 0;
     tk->next = NULL;
 
     return tk;
@@ -68,22 +62,17 @@ static token_t* token_init(char* str, arena_t* arena)
 
 static token_position_t* token_position_init(uint32_t pos, arena_t* arena)
 {
-	// static int i = 0;
-	// printf("%d init token %s\n", ++i, str);
-
     token_position_t* tk = arena_alloc(arena, token_position_t, 1);
 	tk->pos = pos;
 	tk->next = NULL;
     return tk;
 }
 
-token_position_t** token_pool_upsert(token_pool_t** pool, token_t** tokens, char term[MAX_TOKEN_SIZE], arena_t* arena)
+token_position_t** token_pool_upsert(token_pool_t** pool, token_t** tokens, const char term[MAX_WORD_LEN], arena_t* arena)
 {
-	// h = (h * 4) ^ (h >> 60)
     for (uint64_t h = hash(term); *pool; h <<= 2) {
-    	if (!strncmp(term, (*pool)->term, MAX_TOKEN_SIZE)) {
-			// printf("already token: %s\n", (*pool)->token->buff);
-			(*pool)->token->frequency++;
+    	if (!strncmp(term, (*pool)->term, MAX_WORD_LEN)) {
+			(*pool)->frequency++;
         	return &(*pool)->token->positions;
         }
         pool = &(*pool)->child[h >> 62];
@@ -92,15 +81,13 @@ token_position_t** token_pool_upsert(token_pool_t** pool, token_t** tokens, char
     *pool = arena_alloc(arena, token_pool_t, 1);
     memset(*pool, 0, sizeof(token_pool_t));
 
-	// term
-    strncpy((*pool)->term, term, MAX_TOKEN_SIZE);
+    strncpy((*pool)->term, term, MAX_WORD_LEN);
     (*pool)->term[strlen(term)] = 0;
 
-	// token
-	(*pool)->token = token_init(term, arena);
+	(*pool)->frequency = 1;
+	
+	(*pool)->token = token_init((*pool), arena);
 	token_insert(tokens, (*pool)->token);
-
-	// printf("new token: %s\n", (*pool)->token->buff);
 	
     return &(*pool)->token->positions;
 }
@@ -109,11 +96,9 @@ token_t* get_tokens(FILE* fp, token_pool_t** pool, arena_t arena[static 1])
 {
     token_t* tokens = NULL;
     size_t currentLen = 0;
-    char token[MAX_TOKEN_SIZE];
-    int32_t c;
- 	size_t pos = 0;
-    while ((c = fgetc(fp)) != EOF)
-    {
+    size_t pos = 0;
+    char token[MAX_WORD_LEN];
+    for (int32_t c; (c = fgetc(fp)) != EOF; ++pos) {
         // Se il carattere e' alfanumerico, si aggiunge al token 
         if (isalnum(c)) token[currentLen++] = tolower(c);
         // Se il carattere e' un apostrofo, si controlla
@@ -128,14 +113,11 @@ token_t* get_tokens(FILE* fp, token_pool_t** pool, arena_t arena[static 1])
         } else if (currentLen > 0 && token[currentLen - 1]) {
             token[currentLen] = '\0';            
             if (*token) {
-            	// token_t* token_ins = token_init(token, arena);
             	token_position_t** token_ins = token_pool_upsert(pool, &tokens, token, arena);
 				token_position_insert(token_ins, token_position_init(pos, arena));
-                // token_insert(&tokens, token_ins);
             }
             currentLen = 0;
         }
-        ++pos;
     }
     return tokens;
 }

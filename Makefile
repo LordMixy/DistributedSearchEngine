@@ -6,7 +6,7 @@
 
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -ggdb
+CFLAGS = -Wall -Wextra -ggdb -DDEBUG -O3 -march=native -fomit-frame-pointer
 LDFLAGS = -pg
 
 # Directory structures

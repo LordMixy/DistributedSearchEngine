@@ -7,6 +7,8 @@
 
 #define UTILS_MAX(a, b) ((a) > (b) ? (a) : (b))
 
-uint64_t hash(char *s);
+#define MAX_WORD_LEN 256
+
+uint64_t hash(char const*const s);
 
 #endif
