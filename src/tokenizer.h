@@ -92,6 +92,6 @@ struct token_pool {
 	char term[MAX_WORD_LEN];
 };
 
-token_t* get_tokens(FILE* fp, token_pool_t** pool, arena_t arena[static 1]);
+token_t* get_tokens(FILE* fp, token_pool_t** pool, arena_t* arena);
 
 #endif // __TOKENIZER__

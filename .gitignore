@@ -68,3 +68,4 @@ dkms.conf
 /perf.*
 /gmon.out
 /analysis.txt
+/heaptrack.*

@@ -9,6 +9,6 @@
 
 #define MAX_WORD_LEN 256
 
-uint64_t hash(char const*const s);
+uint64_t hash(char* s);
 
 #endif

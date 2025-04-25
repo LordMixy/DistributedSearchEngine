@@ -68,7 +68,7 @@ static token_position_t* token_position_init(uint32_t pos, arena_t* arena)
     return tk;
 }
 
-token_position_t** token_pool_upsert(token_pool_t** pool, token_t** tokens, const char term[MAX_WORD_LEN], arena_t* arena)
+token_position_t** token_pool_upsert(token_pool_t** pool, token_t** tokens, char term[MAX_WORD_LEN], arena_t* arena)
 {
     for (uint64_t h = hash(term); *pool; h <<= 2) {
     	if (!strncmp(term, (*pool)->term, MAX_WORD_LEN)) {
@@ -92,7 +92,7 @@ token_position_t** token_pool_upsert(token_pool_t** pool, token_t** tokens, cons
     return &(*pool)->token->positions;
 }
 
-token_t* get_tokens(FILE* fp, token_pool_t** pool, arena_t arena[static 1])
+token_t* get_tokens(FILE* fp, token_pool_t** pool, arena_t* arena)
 {
     token_t* tokens = NULL;
     size_t currentLen = 0;
@@ -100,7 +100,7 @@ token_t* get_tokens(FILE* fp, token_pool_t** pool, arena_t arena[static 1])
     char token[MAX_WORD_LEN];
     for (int32_t c; (c = fgetc(fp)) != EOF; ++pos) {
         // Se il carattere e' alfanumerico, si aggiunge al token 
-        if (isalnum(c)) token[currentLen++] = tolower(c);
+        if (isalnum(c)) token[currentLen++] = (char) tolower(c);
         // Se il carattere e' un apostrofo, si controlla
         // se fa parte di una forma contratta, come "don't"
         else if (c == '\'') {
@@ -109,7 +109,7 @@ token_t* get_tokens(FILE* fp, token_pool_t** pool, arena_t arena[static 1])
             for (j = 0; contractions[j].length != -1 && strncmp(token, contractions[j].string, contractions[j].length); ++j);
             // Se esiste, la si aggiunge
             if (contractions[j].length > 0) 
-                token[currentLen++] = tolower(c);
+                token[currentLen++] = (char) tolower(c);
         } else if (currentLen > 0 && token[currentLen - 1]) {
             token[currentLen] = '\0';            
             if (*token) {

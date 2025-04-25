@@ -54,7 +54,7 @@ struct arena {
 
 arena_chunk_t* arena_chunk_init(ptrdiff_t size);
 void           arena_chunk_free(arena_chunk_t*);
-arena_t        arena_init();
+arena_t        arena_init(void);
 void*          __arena_alloc(arena_t[static 1], ptrdiff_t size, ptrdiff_t align);
 void           arena_free(arena_t[static 1]);
 

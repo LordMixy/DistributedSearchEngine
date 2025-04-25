@@ -5,7 +5,7 @@
 #include "inverted_index.h"
 #include "arena.h"
 
-posting_t** inv_idx_upsert(inverted_index_t** index, const char term[MAX_WORD_LEN], arena_t* arena)
+posting_t** inv_idx_upsert(inverted_index_t** index, char term[MAX_WORD_LEN], arena_t* arena)
 {
     for (uint64_t h = hash(term); *index; h <<= 2) {
     	if (!strncmp(term, (*index)->term, MAX_WORD_LEN)) {
@@ -23,7 +23,7 @@ posting_t** inv_idx_upsert(inverted_index_t** index, const char term[MAX_WORD_LE
     return &(*index)->postings;
 }
 
-posting_t* get_postings(inverted_index_t* index, const char term[MAX_WORD_LEN])
+posting_t* get_postings(inverted_index_t* index, char term[MAX_WORD_LEN])
 {
     for (uint64_t h = hash(term); index; h <<= 2) {
     	if (!strncmp(term, (index)->term, MAX_WORD_LEN)) {
@@ -40,7 +40,7 @@ void posting_insert(posting_t** postings, posting_t* posting)
     *postings = posting;
 }
 
-void inv_idx_ps_ins(inverted_index_t** idx, const char term[MAX_WORD_LEN], posting_t* posting, arena_t* arena)
+void inv_idx_ps_ins(inverted_index_t** idx, char term[MAX_WORD_LEN], posting_t* posting, arena_t* arena)
 {
     posting_insert(inv_idx_upsert(idx, term, arena), posting);
 }

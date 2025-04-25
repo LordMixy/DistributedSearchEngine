@@ -44,7 +44,7 @@ void arena_chunk_free(arena_chunk_t* arena_chunk)
     free(arena_chunk);
 }
 
-arena_t arena_init()
+arena_t arena_init(void)
 {
     arena_t arena = {0};
     arena_chunk_t* arena_chunk = arena_chunk_init(ARENA_CHUNK_SIZE);

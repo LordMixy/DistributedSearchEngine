@@ -6,7 +6,7 @@
 
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -ggdb -DDEBUG -O3 -march=native -fomit-frame-pointer
+CFLAGS = -Wall -Wextra -Wshadow -Wstrict-prototypes -Wdouble-promotion -Wformat=2 -Wpedantic -ggdb -DDEBUG # -O3 -march=native -fomit-frame-pointer
 LDFLAGS = -pg
 
 # Directory structures
@@ -16,12 +16,12 @@ BUILD_DIR = build
 # Handle platform differences
 ifeq ($(OS),Windows_NT)
     # Windows-specific settings
-    TARGET = build/dse.exe
+    TARGET = build/nirvana.exe
     MKDIR = mkdir $(subst /,\,$(BUILD_DIR))
     RM = rmdir /s /q $(subst /,\,$(BUILD_DIR))
 else
     # Unix-specific settings
-    TARGET = build/dse
+    TARGET = build/nirvana
     MKDIR = mkdir -p $(BUILD_DIR)
     RM = rm -rf $(BUILD_DIR)
 endif
