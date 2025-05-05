@@ -7,7 +7,9 @@
 #include "tokenizer.h"
 #include "inverted_index.h"
 #include "utils.h"
-#include "query_parser.h"
+#include "ire_lex.h"
+
+#define EXPR_LEN 256
 
 #define DOCS_FOLDER "./books/"
 
@@ -62,31 +64,52 @@ void load_files(char* path, inverted_index_t** inv_idx, arena_t* arena)
 int main(void)
 {
 	arena_t arena = arena_init();
-    inverted_index_t* inv_idx = NULL;
+    // inverted_index_t* inv_idx = NULL;
     
     // load_files(DOCS_FOLDER, &inv_idx, &arena);
 
-	char buff[200];
+	char* ireX_tokens[] = {
+	    "search",
+	    "or", "and", "not",
+	    "(", ")", ":", ",", "|>",
+	    "<string>", "<number>", "<identifier>", "<eos>"
+	};
+	
+	char buff[EXPR_LEN + 1];
 	do {
 
 		printf("> ");
 
-		fgets(buff, sizeof buff, stdin);
+		if (!fgets(buff, sizeof buff, stdin)) {
+			fprintf(stderr, "fgets failed\n");
+			exit(EXIT_FAILURE);
+		}
+		
+		if (buff[strlen(buff) - 1] != '\n') {
+			puts("ESPRESSIONE TROPPO LUNGA, CONSUMANDO stdin");	
+			int32_t c;
+			while ((c = getchar()) != '\n' && c != EOF)
+				;
+			continue;
+		}
+		
 		buff[strcspn(buff, "\n")] = 0;
 
-		Q_lexer_t lex = {
+		ire_LexState lex = {
 			.buff = buff,
-			.pos = 0	
+			.read = 0,
+			.curr = buff[0]	
 		};
 
-		Q_token_t tk = Q_next_token(&lex);
-		while (tk.type != Q_TK_END) { 
-			printf("%s -> %s\n", tk.lexeme, (char*[]){"AND","OR","NOT","PHRASE","RIGHT PAREN","LEFT PAREN","LOAD","NOT RECOGNIZED","END"}[tk.type]);
-			
-			if (tk.type == Q_TK_LOAD)
-				load_files(DOCS_FOLDER, &inv_idx, &arena);			
-
-			tk = Q_next_token(&lex);
+		ire_Token tk;
+	
+		tk.kind = llex(&lex, &tk.seminfo);
+		while (tk.kind != TK_EOS) { 
+			if (lex.errcheck < 0) 
+				fprintf(stderr, "%d\n", lex.errcheck);	
+			else 
+				printf("%s\n", ireX_tokens[tk.kind]);
+			tk.kind = llex(&lex, &tk.seminfo);
 		} 
 		
 	} while (strcmp(buff, "q"));
